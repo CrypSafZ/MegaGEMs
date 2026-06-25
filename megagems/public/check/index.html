@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Check Allocation - MegaGEMs</title>
+  <meta name="description" content="Check a MegaGEMs allocation by Discord name or ID.">
+  <link rel="icon" href="/logo.jpg">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/data.js"></script>
+</head>
+<body>
+  <nav class="nav">
+    <div class="shell nav-inner">
+      <a class="brand" href="/">
+        <img src="/logo.jpg" alt="">
+        <span>MegaGEMs</span>
+      </a>
+      <div class="nav-links">
+        <a href="/">Leaderboard</a>
+        <a class="active" href="/check/">Check</a>
+        <a href="/join/">Join</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="shell lookup">
+    <section class="lookup-card">
+      <div class="eyebrow">Allocation checker</div>
+      <h1>Check your MegaGEMs spot</h1>
+      <p class="lead">Search by Discord username, display name, or Discord ID.</p>
+      <div class="toolbar">
+        <input id="lookup" class="search" type="search" placeholder="Name or Discord ID" autofocus autocomplete="off">
+        <a class="button" href="/">Leaderboard</a>
+      </div>
+      <div id="result" class="result muted">Enter a name or wallet to search.</div>
+    </section>
+  </main>
+
+  <footer>Built for AlphaGEMs. Snapshot refreshed June 25, 2026.</footer>
+
+  <script>
+    const { members } = window.MEGAGEMS_DATA;
+    const usd = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+    const num = new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 });
+    const result = document.getElementById("result");
+
+    document.getElementById("lookup").addEventListener("input", (event) => {
+      const query = event.target.value.trim().toLowerCase();
+      if (!query) {
+        result.className = "result muted";
+        result.textContent = "Enter a name or wallet to search.";
+        return;
+      }
+
+      const matches = members.filter((member) => `${member.name} ${member.username} ${member.discordId}`.toLowerCase().includes(query));
+      if (!matches.length) {
+        result.className = "result muted";
+        result.textContent = "No matching allocation found in this snapshot.";
+        return;
+      }
+
+      result.className = "result";
+      result.innerHTML = matches.slice(0, 8).map((member) => `
+        <div class="result-row">
+          <div>
+            <strong>#${member.rank} ${member.name}</strong>
+            <span class="muted">${member.discordId}</span>
+          </div>
+          <div class="right">
+            <strong class="accent">${usd.format(member.allocationUsd)}</strong>
+            <span class="muted">${member.source}</span>
+          </div>
+        </div>
+      `).join("");
+    });
+  </script>
+</body>
+</html>

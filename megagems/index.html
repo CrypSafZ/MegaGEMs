@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MegaGEMs Leaderboard</title>
+  <meta name="description" content="MegaGEMs community allocation leaderboard.">
+  <link rel="icon" href="/logo.jpg">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/data.js"></script>
+</head>
+<body>
+  <nav class="nav">
+    <div class="shell nav-inner">
+      <a class="brand" href="/">
+        <img src="/logo.jpg" alt="">
+        <span>MegaGEMs</span>
+      </a>
+      <div class="nav-links">
+        <a class="active" href="/">Leaderboard</a>
+        <a href="/check/">Check</a>
+        <a href="/join/">Join</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="shell">
+    <section class="hero">
+      <div class="eyebrow">AlphaGEMs x MegaETH</div>
+      <h1>MegaGEMs allocation snapshot</h1>
+      <p class="lead">A reconciled allocation snapshot from the fund collection sheet, SafZ's compiled Discord list, and the screenshots posted in the success channel.</p>
+    </section>
+
+    <section class="stats" aria-label="MegaGEMs stats">
+      <div class="stat headline">
+        <span>Verified allocation</span>
+        <strong id="headlineRange">$400K-$500K</strong>
+      </div>
+      <div class="stat">
+        <span>Tracked members</span>
+        <strong id="memberCount">0</strong>
+      </div>
+      <div class="stat">
+        <span>Screenshots reviewed</span>
+        <strong id="screenshotCount">0</strong>
+      </div>
+      <div class="stat">
+        <span>Discord messages checked</span>
+        <strong id="messageCount">0</strong>
+      </div>
+    </section>
+
+    <section>
+      <div class="toolbar">
+        <input id="search" class="search" type="search" placeholder="Search name or Discord ID" autocomplete="off">
+        <a class="button" href="/check/">Check member</a>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Member</th>
+              <th>Discord ID</th>
+              <th>Evidence</th>
+              <th class="right">Allocation</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer>Built for AlphaGEMs. Snapshot refreshed June 25, 2026.</footer>
+
+  <script>
+    const { members, totals } = window.MEGAGEMS_DATA;
+    const usd = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+    const num = new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 });
+
+    document.getElementById("headlineRange").textContent = usd.format(totals.totalAllocationUsd);
+    document.getElementById("memberCount").textContent = num.format(totals.memberCount);
+    document.getElementById("screenshotCount").textContent = num.format(totals.screenshotCount);
+    document.getElementById("messageCount").textContent = num.format(totals.messageCount);
+
+    const tbody = document.getElementById("rows");
+    const render = (list) => {
+      tbody.innerHTML = list.map((member) => `
+        <tr>
+          <td><span class="rank ${member.rank <= 3 ? "top" : ""}">${member.rank}</span></td>
+          <td><strong>${member.name}</strong></td>
+          <td class="muted">${member.discordId}</td>
+          <td class="muted">${member.source}</td>
+          <td class="right accent">${usd.format(member.allocationUsd)}</td>
+        </tr>
+      `).join("");
+    };
+
+    render(members);
+
+    document.getElementById("search").addEventListener("input", (event) => {
+      const query = event.target.value.trim().toLowerCase();
+      const filtered = query
+        ? members.filter((member) => `${member.name} ${member.username} ${member.discordId}`.toLowerCase().includes(query))
+        : members;
+      render(filtered);
+    });
+  </script>
+</body>
+</html>
